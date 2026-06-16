@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  yatrai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yatrai-app
+    ports:
+      - "8501:8501"
+    environment:
+      # Load from .env file
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Mount current directory for live reload during development
+      - .:/app
+      # Exclude directories that shouldn't be mounted
+      - /app/__pycache__
+      - /app/.pytest_cache
+      - /app/node_modules
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - yatrai-network
+
+networks:
+  yatrai-network:
+    driver: bridge
+
+# To run:
+# 1. Create .env file with GOOGLE_API_KEY=your-key
+# 2. Run: docker-compose up
+# 3. Open: http://localhost:8501
+#
+# To rebuild:
+# docker-compose up --build
+#
+# To stop:
+# docker-compose down
